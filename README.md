@@ -27,10 +27,15 @@ EOF
 ### Install k8s
 
 ```bash
+version_k=1.18.2-00
 sudo apt-get update
-sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu kubelet=1.13.5-00 kubeadm=1.13.5-00 kubectl=1.13.5-00
+sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu kubelet=${version_k} kubeadm=${version_k} kubectl=${version_k}
 sudo apt-mark hold docker-ce kubelet kubeadm kubectl
+sudo swapoff -a
+sudo nano /etc/fstab
 ```
+Comment the next line
+# /swap.img     none    swap    sw      0       0
 
 ### Iptables
 
@@ -42,6 +47,8 @@ sudo sysctl -p
 ## MASTER
 
 ```bash
+sudo hostnamectl set-hostname master-node
+sudo reboot now
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -58,6 +65,8 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/3f7d3e6c24f641
 ## NODES
 
 ```bash
+sudo hostnamectl set-hostname worker##
+sudo reboot now
 sudo kubeadm join $controller_private_ip:6443 --token $token --discovery-token-ca-cert-hash $hash
 ```
 
